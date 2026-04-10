@@ -1,8 +1,8 @@
 # Where's the Postmortem?
 
-[![Deploy](https://img.shields.io/github/deployments/anderkonzen/wheresthepostmortem/production?label=vercel&logo=vercel)](https://wheresthepostmortem.vercel.app)
+[![Deploy](https://img.shields.io/github/deployments/anderkonzen/wheresthepostmortem/production?label=vercel&logo=vercel)](https://wheresthepostmortem.xyz)
 [![CI](https://github.com/anderkonzen/wheresthepostmortem/actions/workflows/ci.yml/badge.svg)](https://github.com/anderkonzen/wheresthepostmortem/actions/workflows/ci.yml)
-[![Postmortems](https://img.shields.io/badge/postmortems-10-b45309)](https://wheresthepostmortem.vercel.app)
+[![Postmortems](https://img.shields.io/badge/postmortems-10-b45309)](https://wheresthepostmortem.xyz)
 [![License](https://img.shields.io/github/license/anderkonzen/wheresthepostmortem)](LICENSE)
 
 Curated incident stories from the best engineering teams. Learn from failures you didn't have to live through.
