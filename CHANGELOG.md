@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2.0] - 2026-04-10
+
+### Added
+- 22 Vitest tests: build smoke tests, Zod schema validation, SEO meta tag verification
+- 11 Playwright E2E tests: axe-core accessibility scans (homepage, detail, about), category filter interactions, keyboard navigation, skip-to-content link
+- GitHub Actions CI pipeline running build + Vitest + Playwright on every push and PR
+
+### Fixed
+- Color contrast for muted and faint text now meets WCAG AA 4.5:1 ratio
+- Severity badge "critical" color darkened for WCAG AA compliance
+- About page link now has underline to distinguish from surrounding text
+- Filter container changed from invalid `role="toolbar"` on `<nav>` to `role="group"` on `<div>`
+
 ## [0.1.1.0] - 2026-04-10
 
 ### Added

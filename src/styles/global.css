@@ -35,11 +35,11 @@
   --color-text-primary: #1a1a1a;
   --color-text-body: #3a3a3a;
   --color-text-secondary: #666666;
-  --color-text-muted: #888888;
-  --color-text-faint: #999999;
+  --color-text-muted: #6b6b6b;
+  --color-text-faint: #717171;
 
   --color-severity-critical-bg: #fef2f2;
-  --color-severity-critical-text: #dc2626;
+  --color-severity-critical-text: #b91c1c;
   --color-severity-major-bg: #fff7ed;
   --color-severity-major-text: #c2410c;
   --color-severity-minor-bg: #f0fdf4;
