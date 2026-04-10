@@ -3,7 +3,7 @@
 ![Vercel](https://vercelbadge.vercel.app/api/anderkonzen/wheresthepostmortem)
 [![CI](https://github.com/anderkonzen/wheresthepostmortem/actions/workflows/ci.yml/badge.svg)](https://github.com/anderkonzen/wheresthepostmortem/actions/workflows/ci.yml)
 [![Postmortems](https://img.shields.io/badge/postmortems-10-b45309)](https://wheresthepostmortem.xyz)
-[![License](https://img.shields.io/github/license/anderkonzen/wheresthepostmortem)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Curated incident stories from the best engineering teams. Learn from failures you didn't have to live through.
 
