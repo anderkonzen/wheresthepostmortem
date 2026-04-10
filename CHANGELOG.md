@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2.1] - 2026-04-10
+
+### Added
+- Custom amber "?" favicon using SVG path (replaces default Astro rocket)
+- robots.txt with sitemap reference for search engine discovery
+
+### Changed
+- Favicon uses vector path instead of font-dependent text for cross-platform reliability
+- Lighthouse scores verified: Performance 99/97, Accessibility 100/100
+
 ## [0.1.2.0] - 2026-04-10
 
 ### Added
