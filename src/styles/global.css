@@ -48,3 +48,40 @@
   --font-serif: "Source Serif 4", Georgia, serif;
   --font-sans: Inter, system-ui, sans-serif;
 }
+
+/* MDX content styling (no @tailwindcss/typography plugin) */
+.postmortem-content h2 {
+  @apply font-serif text-text-primary font-semibold text-2xl mt-10 mb-4;
+}
+
+.postmortem-content h3 {
+  @apply font-serif text-text-primary font-semibold text-xl mt-8 mb-3;
+}
+
+.postmortem-content p {
+  @apply mb-4;
+}
+
+.postmortem-content a {
+  @apply text-amber-accent hover:text-amber-accent-dark underline;
+}
+
+.postmortem-content ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.postmortem-content ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.postmortem-content li {
+  @apply mb-1;
+}
+
+.postmortem-content code {
+  @apply bg-surface-card text-text-primary px-1.5 py-0.5 rounded text-[0.9em] font-mono;
+}
+
+.postmortem-content blockquote {
+  @apply border-l-4 border-surface-border pl-4 italic text-text-secondary my-4;
+}
