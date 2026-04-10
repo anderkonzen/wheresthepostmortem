@@ -1,0 +1,33 @@
+---
+title: "When a Database Engineer Accidentally Deleted the Production Database"
+company: "GitLab"
+date: 2017-01-31
+last_updated: 2026-04-09
+draft: false
+featured: true
+highlighted: false
+severity: "critical"
+categories: ["database"]
+root_cause_type: "human-error"
+one_line_summary: "An engineer ran rm -rf on production. Five backup strategies all failed."
+source_url: "https://about.gitlab.com/blog/2017/02/10/postmortem-of-database-outage-of-january-31/"
+reading_time: 12
+---
+
+## What Happened
+
+On January 31, 2017, a GitLab database engineer was troubleshooting replication lag between the primary and secondary PostgreSQL databases. After a long night of debugging, the engineer ran `rm -rf` on what they believed was the secondary database directory. It was the primary.
+
+Within seconds, 300GB of production data began disappearing. The engineer hit Ctrl-C, but by then only 4.5GB remained. GitLab.com was down.
+
+## Impact
+
+GitLab.com was unavailable for approximately 18 hours. About 5,000 projects, 5,000 comments, and 700 new user accounts from the six hours preceding the incident were permanently lost. The incident was live-streamed on YouTube as the team worked to recover, drawing widespread attention across the tech community.
+
+## Root Cause
+
+The immediate cause was a human error: running a destructive command on the wrong database server. But the deeper failure was systemic. GitLab had five separate backup and replication strategies in place, and all five had failed or were misconfigured. LVM snapshots were never tested. Regular SQL dumps had silently stopped working. Replication was the very thing being debugged when the deletion happened.
+
+## Lessons
+
+GitLab's radical transparency during and after the incident became a model for the industry. They published a detailed postmortem, live-streamed the recovery, and shared exactly what went wrong with every backup layer. The key takeaway: untested backups are not backups. Every organization should regularly verify that their recovery procedures actually work, not just that backup jobs are running.
