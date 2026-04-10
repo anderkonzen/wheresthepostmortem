@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0.1] - 2026-04-10
+
+### Changed
+- Custom logo with magnifying glass + bug icon replaces text logo in header
+- New PNG favicon (magnifying glass with bug) replaces SVG question mark
+- Logo image used as OG image for social sharing previews
+- Apple touch icon support added
+
 ## [0.2.0.0] - 2026-04-10
 
 ### Added
