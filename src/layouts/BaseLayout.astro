@@ -14,7 +14,10 @@ const { title, description = 'Curated incident stories from the best engineering
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
     <title>{title}</title>
   </head>
   <body class="bg-surface-base text-text-primary font-sans">
