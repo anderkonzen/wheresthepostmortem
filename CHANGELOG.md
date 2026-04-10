@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0.0] - 2026-04-10
+
+### Added
+- 5 new postmortem entries bringing total to 10: Slack (2021), GitHub (2018), AWS S3 (2017), Meta/Facebook (2021), Heroku (2022)
+- Coverage now spans: database, deploy, financial, networking, third-party, cascading-failure, configuration, load, security
+
+### Fixed
+- RSS feed test no longer hardcodes entry count (supports growing content)
+
 ## [0.1.2.1] - 2026-04-10
 
 ### Added
