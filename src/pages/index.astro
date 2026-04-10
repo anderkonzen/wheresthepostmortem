@@ -85,7 +85,7 @@ const usedCategories = categories.filter((cat) =>
 
 <script>
   function initFilters() {
-    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-category]');
+    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
     const filterableCards = document.querySelectorAll<HTMLElement>('[data-categories]');
     const emptyMessage = document.getElementById('empty-filter-message');
     const highlightedGrid = document.getElementById('highlighted-grid');
@@ -154,7 +154,14 @@ const usedCategories = categories.filter((cat) =>
     setFilter(initial);
   }
 
-  // Run on initial load and on Astro page transitions
+  // Run on initial load, browser back/forward, and Astro page transitions
   initFilters();
+  window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category') || 'all';
+    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
+    const filterableCards = document.querySelectorAll<HTMLElement>('[data-categories]');
+    if (buttons.length > 0) initFilters();
+  });
   document.addEventListener('astro:after-swap', initFilters);
 </script>
