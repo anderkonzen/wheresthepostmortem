@@ -1,0 +1,33 @@
+---
+title: "A Typo That Took Down the Internet for Four Hours"
+company: "Amazon Web Services"
+date: 2017-02-28
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: false
+severity: "critical"
+categories: ["configuration", "cascading-failure"]
+root_cause_type: "human-error"
+one_line_summary: "An engineer mistyped a command while debugging, removing far more S3 servers than intended. The restart took four hours because S3 had never been fully restarted."
+source_url: "https://aws.amazon.com/message/41926/"
+reading_time: 8
+---
+
+## What Happened
+
+On February 28, 2017, an authorized AWS engineer was debugging a billing system issue in the S3 service in us-east-1 (Northern Virginia). Using an established playbook, they executed a command to remove a small number of servers. One of the inputs was entered incorrectly. A much larger set of servers was removed than intended, taking out significant capacity from two critical S3 subsystems: the index subsystem (which manages metadata for all S3 objects) and the placement subsystem (which allocates new storage).
+
+Both subsystems were forced into a full restart. The problem: S3 had grown massively over the years, and these subsystems had not been completely restarted in the larger regions for a very long time. The restart and integrity checks took far longer than anyone expected.
+
+## Impact
+
+A large portion of the internet went down for approximately four hours. S3 in us-east-1 underpins an enormous number of services. Affected companies included Slack, Trello, Coursera, Docker, GitHub, Twitch, and dozens more. The AWS Service Health Dashboard itself couldn't be updated because it depended on S3, forcing AWS to communicate via Twitter for the first two hours. EC2 couldn't launch new instances. Lambda stopped working. EBS volumes that needed S3 snapshots were unavailable.
+
+## Root Cause
+
+A human error (mistyped command) with no input validation or blast radius protection in the operational tooling. The command that removed servers had no safeguard preventing removal below minimum required capacity. The extended recovery time was caused by the sheer scale of the restart: systems that have never been fully restarted accumulate hidden restart risk, and the actual restart time was unknown until it happened.
+
+## Lessons
+
+AWS modified the capacity removal tool to work more slowly and added safeguards preventing removal below minimum levels. They audited other operational tools for similar gaps and reprioritized partitioning the index subsystem into smaller "cells" to reduce blast radius. The Service Health Dashboard was migrated to run across multiple regions. The deeper lesson: any system that has never been restarted in years has an unknown restart time. You won't know how long it takes until you actually need it, and that's the worst time to find out.

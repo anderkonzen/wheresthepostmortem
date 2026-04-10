@@ -1,0 +1,33 @@
+---
+title: "When Everyone Came Back from Holiday and Slack Couldn't Handle It"
+company: "Slack"
+date: 2021-01-04
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: false
+severity: "major"
+categories: ["load", "cascading-failure"]
+root_cause_type: "capacity"
+one_line_summary: "Cold client caches after the holiday break overwhelmed AWS Transit Gateways, triggering auto-scaling chaos that made the outage worse."
+source_url: "https://slack.engineering/slacks-outage-on-january-4th-2021/"
+reading_time: 9
+---
+
+## What Happened
+
+On January 4, 2021, the first working Monday after the holidays, millions of remote workers opened Slack simultaneously. Every client had cold caches after weeks of inactivity, so each one pulled down significantly more data than a normal reconnection. The system went from its quietest period to one of the biggest traffic days quite literally overnight.
+
+AWS Transit Gateways, which connect Slack's VPCs across accounts, couldn't scale fast enough for the sudden spike in packets-per-second and started dropping packets. Web servers began waiting longer for backend responses. CPU utilization dropped because threads were idle waiting on the network, which triggered automatic downscaling that removed servers, including ones engineers were SSHed into while debugging. Simultaneously, a separate algorithm detected blocked threads and tried to spin up 1,200 new servers. This massive provisioning request under degraded conditions exhausted file descriptor limits and AWS instance quotas.
+
+## Impact
+
+Slack was completely unusable for approximately 2.5 hours during peak morning hours, with degraded service for another hour after that. Millions of remote workers on their first day back couldn't communicate. The monitoring dashboards themselves were in separate VPCs that depended on the same failing Transit Gateways, so the team was largely blind to what was happening.
+
+## Root Cause
+
+AWS Transit Gateway saturation combined with cold client caches. The TGW couldn't scale fast enough for the sudden traffic spike. Two auto-scaling policies then fought each other: one downscaled on low CPU (threads were idle waiting on the network, not computing), while another upscaled on thread count. The provisioning system had never been tested at the scale of 1,200 simultaneous instance requests under degraded networking.
+
+## Lessons
+
+The cold-cache problem is uniquely dangerous because it creates a traffic pattern that exceeds normal scaling assumptions. Nobody models for "every single client needs a full data pull at the same moment." After the incident, Slack committed to requesting preemptive capacity increases before predictable traffic events, colocating monitoring with its databases to remove TGW dependency, and regular load testing of the provisioning system. The broader lesson: your auto-scaling policies can make an outage worse if they disagree with each other about what's happening.
