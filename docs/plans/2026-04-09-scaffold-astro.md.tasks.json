@@ -1,14 +1,14 @@
 {
   "planPath": "docs/plans/2026-04-09-scaffold-astro.md",
   "tasks": [
-    {"id": 0, "subject": "Task 0: Initialize Astro project with npm", "status": "pending"},
-    {"id": 1, "subject": "Task 1: Install and configure integrations", "status": "pending", "blockedBy": [0]},
-    {"id": 2, "subject": "Task 2: Configure Tailwind with design tokens", "status": "pending", "blockedBy": [1]},
-    {"id": 3, "subject": "Task 3: Download and self-host fonts", "status": "pending", "blockedBy": [2]},
-    {"id": 4, "subject": "Task 4: Define content collection with Zod schema", "status": "pending", "blockedBy": [1]},
-    {"id": 5, "subject": "Task 5: Create RSS feed page", "status": "pending", "blockedBy": [4]},
-    {"id": 6, "subject": "Task 6: Create placeholder pages (detail, about, 404)", "status": "pending", "blockedBy": [4, 2]},
-    {"id": 7, "subject": "Task 7: Final verification and cleanup", "status": "pending", "blockedBy": [5, 6]}
+    {"id": 0, "subject": "Task 0: Initialize Astro project with npm", "status": "completed"},
+    {"id": 1, "subject": "Task 1: Install and configure integrations", "status": "completed", "blockedBy": [0]},
+    {"id": 2, "subject": "Task 2: Configure Tailwind with design tokens", "status": "completed", "blockedBy": [1]},
+    {"id": 3, "subject": "Task 3: Download and self-host fonts", "status": "completed", "blockedBy": [2]},
+    {"id": 4, "subject": "Task 4: Define content collection with Zod schema", "status": "completed", "blockedBy": [1]},
+    {"id": 5, "subject": "Task 5: Create RSS feed page", "status": "completed", "blockedBy": [4]},
+    {"id": 6, "subject": "Task 6: Create placeholder pages (detail, about, 404)", "status": "completed", "blockedBy": [4, 2]},
+    {"id": 7, "subject": "Task 7: Final verification and cleanup", "status": "completed", "blockedBy": [5, 6]}
   ],
-  "lastUpdated": "2026-04-09T23:30:00Z"
+  "lastUpdated": "2026-04-10T02:50:00Z"
 }

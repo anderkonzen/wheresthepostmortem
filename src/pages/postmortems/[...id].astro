@@ -20,7 +20,7 @@ const { Content } = await render(post);
     <article class="mt-6 font-serif text-text-body text-[1.1rem] leading-[1.8]">
       <h1 class="text-text-primary text-3xl font-bold leading-tight">{post.data.title}</h1>
       <p class="text-text-muted text-sm font-sans mt-2">
-        {post.data.company} &middot; {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} &middot; {post.data.reading_time} min read
+        {post.data.company} &middot; {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })} &middot; {post.data.reading_time} min read
       </p>
       <div class="mt-8 postmortem-content">
         <Content />
