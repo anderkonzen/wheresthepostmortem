@@ -1,0 +1,33 @@
+---
+title: "One Customer Setting Broke the Internet for an Hour"
+company: "Fastly"
+date: 2021-06-08
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: false
+severity: "critical"
+categories: ["configuration", "cascading-failure"]
+root_cause_type: "latent-bug"
+one_line_summary: "A single valid customer config change triggered a dormant bug that took down 85% of Fastly's CDN, knocking Amazon, Reddit, and the BBC offline."
+source_url: "https://www.fastly.com/blog/summary-of-june-8-outage"
+reading_time: 7
+---
+
+## What Happened
+
+On June 8, 2021 at 09:47 UTC, 85% of Fastly's global CDN network began returning 503 errors. Amazon, Reddit, Twitch, the BBC, the New York Times, the UK government website, CNN, GitHub, Stack Overflow, Spotify, and dozens of other major sites went down simultaneously. The trigger was a single customer making a routine, valid configuration change.
+
+The bug that caused the outage had actually been deployed on May 12, nearly a month earlier, but it remained dormant. It could only be triggered by a specific combination of conditions in a customer's configuration. When those conditions were finally met on June 8, Fastly's architecture propagated the failing configuration instantly and uniformly to all edge servers worldwide. There was no canary rollout, no staged deployment, no circuit breaker. One bad state replicated everywhere at once.
+
+## Impact
+
+The outage lasted approximately one hour for most affected services. Fastly detected the problem within one minute (09:48 UTC), identified the triggering configuration at 10:27, and began recovery at 10:36 by disabling the problematic configuration. By 11:00, 95% of the network had recovered. A permanent bug fix was deployed at 17:25 UTC. No customer data was lost, though cache refilling caused minor latency afterward.
+
+## Root Cause
+
+A software deployment on May 12 introduced a latent bug with a missing guard condition. The bug only manifested under specific configuration parameters that no customer had used until June 8. When the triggering configuration was applied, it crashed edge servers. Because Fastly pushes configuration changes to all edge servers simultaneously (the same speed that makes their CDN fast is what made the failure global), the crash propagated to 85% of the network before anyone could react.
+
+## Lessons
+
+The irony is elegant: the very architecture that makes a CDN fast (instant global propagation) is what makes it fragile. Fastly's postmortem was refreshingly direct about this tradeoff. The key changes: staged configuration rollouts with health checks between stages, additional testing for the specific class of configuration that triggered the bug, and improved monitoring to detect edge server failures faster. For the broader industry, the lesson is that configuration changes need the same rigor as code changes. Peer review, staging environments, canary deployments. A config flag is just code that bypasses your CI/CD pipeline.

@@ -1,0 +1,33 @@
+---
+title: "When Someone Else Hijacked 1.1.1.1"
+company: "Cloudflare"
+date: 2024-06-27
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: true
+severity: "major"
+categories: ["networking", "third-party"]
+root_cause_type: "third-party-dependency"
+one_line_summary: "A Brazilian ISP announced a more-specific route for 1.1.1.1, hijacking DNS traffic across 300 networks in 70 countries."
+source_url: "https://blog.cloudflare.com/cloudflare-1111-incident-on-june-27-2024/"
+reading_time: 8
+---
+
+## What Happened
+
+On June 27, 2024 at 18:51 UTC, AS267613 (Eletronet, a Brazilian ISP) began announcing a /32 route for 1.1.1.1. Because this was more specific than Cloudflare's legitimate /24 announcement, routers across the internet preferred the hijacked route under longest-prefix-match rules. One minute later, a second Brazilian network (AS262504) leaked Cloudflare's /24 prefix with a bogus AS path through a global internet exchange that redistributed it without filtering.
+
+Cloudflare detected the hijack 72 minutes after it began. They disabled peering with the offending network at 20:08 UTC, but the route leak through the second network wasn't fully resolved until 02:28 UTC the following day.
+
+## Impact
+
+Over 300 networks in 70 countries experienced disrupted DNS resolution through 1.1.1.1 for approximately 7.5 hours. Users saw either complete unreachability or severely degraded latency. The global impact was uneven: some countries were barely affected while others lost DNS entirely. Networks that enforced RPKI Route Origin Validation automatically rejected the invalid routes and experienced no disruption.
+
+## Root Cause
+
+The hijack itself was a third-party action outside Cloudflare's control. But the blast radius was amplified by systemic weaknesses in internet routing security. Cloudflare had signed their routes with RPKI, but only about 50% of networks enforce RPKI validation. The route leak spread through an internet exchange (AS1031) that accepted and redistributed the bogus route without prefix-length or AS-path filtering. The 72-minute detection gap meant the hijack had time to propagate widely before Cloudflare could respond.
+
+## Lessons
+
+This incident highlights a structural problem with BGP: your network's security depends on every other network's security practices. Cloudflare did everything right on their end (RPKI signing), but it didn't matter at networks that don't validate. After the incident, Cloudflare expanded their route leak detection systems, reduced detection latency, and advocated for broader RPKI adoption and a newer standard called ASPA (Autonomous System Provider Authorization) that validates entire AS paths, not just origins. The lesson for the industry: RPKI adoption at 50% means half the internet is still vulnerable to route hijacks.

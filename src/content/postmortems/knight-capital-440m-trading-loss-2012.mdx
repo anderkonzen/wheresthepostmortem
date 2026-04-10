@@ -1,0 +1,33 @@
+---
+title: "How Dead Code Caused a $440 Million Loss in 45 Minutes"
+company: "Knight Capital"
+date: 2012-08-01
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: true
+severity: "critical"
+categories: ["deploy", "financial"]
+root_cause_type: "deploy-failure"
+one_line_summary: "A botched deployment activated 9-year-old dead code that bought high and sold low for 45 minutes straight."
+source_url: "https://www.sec.gov/files/litigation/admin/2013/34-70694.pdf"
+reading_time: 10
+---
+
+## What Happened
+
+On August 1, 2012, Knight Capital Group was preparing for the NYSE's new Retail Liquidity Program. Engineers had manually deployed new trading code to their SMARS routing servers over the preceding days. One technician missed one of the eight servers. No automated check caught the gap.
+
+When markets opened at 9:30 AM, the unpatched server activated a dormant algorithm called "Power Peg," a test routine from 2003 designed to intentionally buy high and sell low. It had been disabled but never removed from the codebase. A 2005 refactoring had disconnected its throttling mechanism, meaning it could now send orders indefinitely with no stop condition. For 45 minutes, it fired thousands of child orders per second across 154 stocks, accumulating $7 billion in unintended positions.
+
+## Impact
+
+Knight Capital lost $440 million before the bleeding stopped at 10:15 AM. The firm executed over 4 million trades from just 212 incoming parent orders. Seventy-five stocks saw price swings exceeding 5%. The company's stock dropped 75% the next day. Before market open, 97 automated error emails had flagged the problem, but they were routed to a non-priority channel and went unread.
+
+## Root Cause
+
+Three failures compounded. First, a manual deployment process with no verification step meant one server out of eight ran stale code. Second, dead code from 2003 remained executable in production for nine years. Third, a 2005 refactoring silently disabled the algorithm's safety throttle without anyone noticing, because no regression tests existed for dormant code paths.
+
+## Lessons
+
+Knight Capital was rescued by a $400 million emergency investment and eventually acquired by Getco to form KCG Holdings. The SEC levied a $12 million fine. The incident became the canonical example of why dead code must be removed, deployments must be automated and verified, and kill switches must exist for trading systems. The 97 unread error emails are a textbook case of alert fatigue: the signals were there, but nobody was listening.

@@ -1,0 +1,33 @@
+---
+title: "73 Hours Down: When Service Discovery Took Down an Entire Platform"
+company: "Roblox"
+date: 2021-10-28
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: false
+severity: "critical"
+categories: ["cascading-failure", "configuration"]
+root_cause_type: "cascading-failure"
+one_line_summary: "A Consul upgrade and a BoltDB storage pathology combined to take Roblox offline for 73 hours."
+source_url: "https://blog.roblox.com/2022/01/roblox-return-to-service-10-28-10-31-2021/"
+reading_time: 14
+---
+
+## What Happened
+
+On October 27, 2021, Roblox engineers enabled a new streaming feature in HashiCorp Consul and scaled up their traffic routing nodes by 50%. The next afternoon, Consul's performance began degrading. By 4:35 PM PST on October 28, player count had dropped to half and then collapsed entirely. Roblox, a platform serving 50 million daily active players across 18,000 servers and 170,000 containers, went completely dark.
+
+What followed was 73 hours of increasingly desperate debugging. Engineers tried replacing hardware, migrating to 128-core servers (which made things worse due to NUMA contention), resetting cluster state from snapshots, and reducing all Consul traffic. Each attempt took hours to execute and test. The monitoring systems themselves depended on Consul, so the team was largely blind to what was happening inside the failing cluster.
+
+## Impact
+
+Fifty million daily active players could not access Roblox for over three days. The caching layer, normally handling 1 billion requests per second, went down entirely and had to be rebuilt from scratch. While Roblox never disclosed an exact revenue figure, their Q3 2021 revenue of ~$509 million implies roughly $16-17 million in lost bookings during the outage. No user data was lost or compromised.
+
+## Root Cause
+
+Two unrelated bugs in Consul compounded each other. First, the newly enabled streaming feature used fewer Go channels for concurrency than the older long-polling approach. Under Roblox's specific load pattern (high reads AND high writes simultaneously), this created extreme contention that blocked write operations. Second, Consul's underlying BoltDB storage had a freelist that grew without bound as old entries were deleted. At Roblox's scale, the freelist reached 7.8 MB, and every 16 KB log append forced writing the entire freelist to disk. The database was 4.2 GB on disk but contained only 489 MB of actual data.
+
+## Lessons
+
+The 73-hour duration wasn't just about finding the bug. It was about recovering from scratch. Tools designed for incremental scaling of running systems couldn't bootstrap from zero. The cache system couldn't cold-start. Services had circular dependencies on the very infrastructure that was down. After the incident, Roblox split critical workloads across dedicated Consul clusters, began building a second data center, and made monitoring independent of the systems it monitors. HashiCorp replaced BoltDB with bbolt to fix the freelist pathology. The meta-lesson: at sufficient scale, even well-tested infrastructure components can exhibit pathological behavior that nobody predicted.
