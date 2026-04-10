@@ -16,7 +16,7 @@ const { Content } = await render(post);
 const { title, company, date, severity, categories, one_line_summary, source_url, reading_time } = post.data;
 ---
 
-<BaseLayout title={`${title} | Where's the Postmortem?`} description={one_line_summary}>
+<BaseLayout title={`${title} | Where's the Postmortem?`} description={one_line_summary} ogType="article">
   <div class="max-w-[700px] mx-auto px-4 py-10">
     <a href="/" class="text-amber-accent hover:text-amber-accent-dark text-sm font-sans">&larr; Back to all postmortems</a>
     <article class="mt-6">

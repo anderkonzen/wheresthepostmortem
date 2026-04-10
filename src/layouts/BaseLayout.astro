@@ -6,9 +6,20 @@ import SiteFooter from '../components/SiteFooter.astro';
 interface Props {
   title: string;
   description?: string;
+  ogType?: 'website' | 'article';
+  canonicalUrl?: string;
 }
 
-const { title, description = 'Curated incident stories from the best engineering teams.' } = Astro.props;
+const {
+  title,
+  description = 'Curated incident stories from the best engineering teams.',
+  ogType = 'website',
+  canonicalUrl,
+} = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || '';
+const canonical = canonicalUrl || `${siteUrl}${Astro.url.pathname}`;
+const ogImageUrl = `${siteUrl}/og-image.png`;
 ---
 
 <!doctype html>
@@ -18,6 +29,24 @@ const { title, description = 'Curated incident stories from the best engineering
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content="Where's the Postmortem?" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="alternate" type="application/rss+xml" title="Where's the Postmortem?" href="/rss.xml" />
