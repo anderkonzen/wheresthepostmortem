@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [0.2.0.1] - 2026-04-10
+
+### Added
+- README with deploy status, CI, and postmortem count shields
+- Pre-filled issue template link for suggesting new postmortems
+- MIT license file
+- Development quickstart and content contribution guide
+
 ## [0.2.0.0] - 2026-04-10
 
 ### Added
