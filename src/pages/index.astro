@@ -84,84 +84,85 @@ const usedCategories = categories.filter((cat) =>
 </BaseLayout>
 
 <script>
-  function initFilters() {
+  function applyFilter(category: string) {
     const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
     const filterableCards = document.querySelectorAll<HTMLElement>('[data-categories]');
     const emptyMessage = document.getElementById('empty-filter-message');
     const highlightedGrid = document.getElementById('highlighted-grid');
     const standardGrid = document.getElementById('standard-grid');
 
-    function setFilter(category: string) {
-      // Update button states
-      buttons.forEach((btn) => {
-        const isActive = btn.dataset.category === category;
-        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-        if (isActive) {
-          btn.classList.add('bg-amber-accent-bg', 'border-amber-accent', 'text-amber-accent');
-          btn.classList.remove('border-surface-border-hover', 'text-text-muted');
-        } else {
-          btn.classList.remove('bg-amber-accent-bg', 'border-amber-accent', 'text-amber-accent');
-          btn.classList.add('border-surface-border-hover', 'text-text-muted');
-        }
-      });
-
-      // Filter cards
-      let visibleCount = 0;
-      filterableCards.forEach((card) => {
-        const categories = JSON.parse(card.dataset.categories || '[]');
-        const show = category === 'all' || categories.includes(category);
-        card.style.opacity = show ? '1' : '0';
-        card.style.display = show ? '' : 'none';
-        if (show) visibleCount++;
-      });
-
-      // Show/hide empty message
-      if (emptyMessage) {
-        emptyMessage.classList.toggle('hidden', category === 'all' || visibleCount > 0);
-      }
-
-      // Hide grid sections if all their children are hidden
-      if (highlightedGrid) {
-        const visibleHighlighted = highlightedGrid.querySelectorAll('[data-categories]:not([style*="display: none"])');
-        highlightedGrid.style.display = visibleHighlighted.length === 0 && category !== 'all' ? 'none' : '';
-      }
-      if (standardGrid) {
-        const visibleStandard = standardGrid.querySelectorAll('[data-categories]:not([style*="display: none"])');
-        standardGrid.style.display = visibleStandard.length === 0 && category !== 'all' ? 'none' : '';
-      }
-
-      // Update URL
-      const url = new URL(window.location.href);
-      if (category === 'all') {
-        url.searchParams.delete('category');
+    // Update button states
+    buttons.forEach((btn) => {
+      const isActive = btn.dataset.category === category;
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      if (isActive) {
+        btn.classList.add('bg-amber-accent-bg', 'border-amber-accent', 'text-amber-accent');
+        btn.classList.remove('border-surface-border-hover', 'text-text-muted');
       } else {
-        url.searchParams.set('category', category);
+        btn.classList.remove('bg-amber-accent-bg', 'border-amber-accent', 'text-amber-accent');
+        btn.classList.add('border-surface-border-hover', 'text-text-muted');
       }
-      history.pushState({}, '', url.toString());
+    });
+
+    // Filter cards
+    let visibleCount = 0;
+    filterableCards.forEach((card) => {
+      const categories = JSON.parse(card.dataset.categories || '[]');
+      const show = category === 'all' || categories.includes(category);
+      card.style.opacity = show ? '1' : '0';
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    // Show/hide empty message
+    if (emptyMessage) {
+      emptyMessage.classList.toggle('hidden', category === 'all' || visibleCount > 0);
     }
 
-    // Bind click handlers
+    // Hide grid sections if all their children are hidden
+    if (highlightedGrid) {
+      const visibleHighlighted = highlightedGrid.querySelectorAll('[data-categories]:not([style*="display: none"])');
+      highlightedGrid.style.display = visibleHighlighted.length === 0 && category !== 'all' ? 'none' : '';
+    }
+    if (standardGrid) {
+      const visibleStandard = standardGrid.querySelectorAll('[data-categories]:not([style*="display: none"])');
+      standardGrid.style.display = visibleStandard.length === 0 && category !== 'all' ? 'none' : '';
+    }
+  }
+
+  function bindFilterHandlers() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
     buttons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const category = btn.dataset.category || 'all';
-        setFilter(category);
+        applyFilter(category);
+        // Update URL
+        const url = new URL(window.location.href);
+        if (category === 'all') {
+          url.searchParams.delete('category');
+        } else {
+          url.searchParams.set('category', category);
+        }
+        history.pushState({}, '', url.toString());
       });
     });
-
-    // Apply filter from URL on load
-    const params = new URLSearchParams(window.location.search);
-    const initial = params.get('category') || 'all';
-    setFilter(initial);
   }
 
-  // Run on initial load, browser back/forward, and Astro page transitions
-  initFilters();
-  window.addEventListener('popstate', () => {
+  function readFilterFromURL() {
     const params = new URLSearchParams(window.location.search);
-    const category = params.get('category') || 'all';
-    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
-    const filterableCards = document.querySelectorAll<HTMLElement>('[data-categories]');
-    if (buttons.length > 0) initFilters();
+    return params.get('category') || 'all';
+  }
+
+  // Bind click handlers once
+  bindFilterHandlers();
+  // Apply initial filter from URL
+  applyFilter(readFilterFromURL());
+
+  // Browser back/forward: only re-apply filter state, don't re-bind handlers
+  window.addEventListener('popstate', () => applyFilter(readFilterFromURL()));
+  // Astro page transitions: re-bind + re-apply
+  document.addEventListener('astro:after-swap', () => {
+    bindFilterHandlers();
+    applyFilter(readFilterFromURL());
   });
-  document.addEventListener('astro:after-swap', initFilters);
 </script>
