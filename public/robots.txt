@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wheresthepostmortem.com/sitemap-index.xml
