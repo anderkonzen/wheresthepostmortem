@@ -44,12 +44,12 @@ const usedCategories = categories.filter((cat) =>
 
   <!-- Filters -->
   <section class="max-w-5xl mx-auto px-4 pb-6">
-    <nav role="toolbar" aria-label="Filter by category" class="flex gap-2 overflow-x-auto pb-2 -mb-2">
+    <div role="group" aria-label="Filter by category" class="flex gap-2 overflow-x-auto pb-2 -mb-2">
       <CategoryTag category="all" active={true} />
       {usedCategories.map((cat) => (
         <CategoryTag category={cat} />
       ))}
-    </nav>
+    </div>
   </section>
 
   <!-- Empty filter message (hidden by default) -->
@@ -85,7 +85,7 @@ const usedCategories = categories.filter((cat) =>
 
 <script>
   function applyFilter(category: string) {
-    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
+    const buttons = document.querySelectorAll<HTMLButtonElement>('div[role="group"] [data-category]');
     const filterableCards = document.querySelectorAll<HTMLElement>('[data-categories]');
     const emptyMessage = document.getElementById('empty-filter-message');
     const highlightedGrid = document.getElementById('highlighted-grid');
@@ -131,7 +131,7 @@ const usedCategories = categories.filter((cat) =>
   }
 
   function bindFilterHandlers() {
-    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
+    const buttons = document.querySelectorAll<HTMLButtonElement>('div[role="group"] [data-category]');
     buttons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const category = btn.dataset.category || 'all';
