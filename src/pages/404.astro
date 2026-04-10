@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Not Found | Where's the Postmortem?">
+  <div class="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+    <h1 class="font-serif text-3xl font-bold text-text-primary">Postmortem not found.</h1>
+    <p class="text-text-secondary mt-3 text-lg">
+      This incident has no write-up. (Or you mistyped the URL.)
+    </p>
+    <a href="/" class="text-amber-accent hover:text-amber-accent-dark mt-6 font-sans">
+      Browse all postmortems
+    </a>
+  </div>
+</BaseLayout>

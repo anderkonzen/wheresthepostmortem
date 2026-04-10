@@ -1,0 +1,23 @@
+---
+import SeverityBadge from './SeverityBadge.astro';
+
+interface Props {
+  post: any;
+}
+
+const { post } = Astro.props;
+const { title, company, severity } = post.data;
+---
+
+<article class="bg-surface-card border border-surface-border rounded-lg p-6 transition-[border-color,box-shadow] duration-150 hover:border-surface-border-hover hover:shadow-[0_2px_12px_rgba(0,0,0,0.04)]" data-categories={JSON.stringify(post.data.categories)}>
+  <a href={`/postmortems/${post.id}/`} class="block group focus:outline-2 focus:outline-amber-accent focus:outline-offset-2 rounded-lg">
+    <div class="flex items-center gap-2 text-sm font-sans text-text-faint mb-2">
+      <span>{company}</span>
+      <span>&middot;</span>
+      <SeverityBadge severity={severity} />
+    </div>
+    <h3 class="font-serif text-lg font-bold text-text-primary group-hover:text-amber-accent transition-colors duration-150">
+      {title}
+    </h3>
+  </a>
+</article>

@@ -1,0 +1,21 @@
+---
+interface Props {
+  category: string;
+  active?: boolean;
+}
+
+const { category, active = false } = Astro.props;
+
+const label = category.replace(/-/g, ' ');
+const baseClasses = 'inline-block px-3 py-1.5 rounded-full text-sm font-sans cursor-pointer transition-colors duration-150 border min-h-[44px] leading-[44px] sm:min-h-0 sm:leading-normal sm:py-1.5';
+const activeClasses = 'bg-amber-accent-bg border-amber-accent text-amber-accent';
+const inactiveClasses = 'border-surface-border-hover text-text-muted hover:border-amber-accent hover:text-amber-accent';
+---
+
+<button
+  class={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}
+  data-category={category}
+  aria-pressed={active ? 'true' : 'false'}
+>
+  {label}
+</button>

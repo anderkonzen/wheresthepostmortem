@@ -1,0 +1,53 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SeverityBadge from '../../components/SeverityBadge.astro';
+
+export async function getStaticPaths() {
+  const postmortems = await getCollection('postmortems', ({ data }) => !data.draft);
+  return postmortems.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { title, company, date, severity, categories, one_line_summary, source_url, reading_time } = post.data;
+---
+
+<BaseLayout title={`${title} | Where's the Postmortem?`} description={one_line_summary} ogType="article">
+  <div class="max-w-[700px] mx-auto px-4 py-10">
+    <a href="/" class="text-amber-accent hover:text-amber-accent-dark text-sm font-sans">&larr; Back to all postmortems</a>
+    <article class="mt-6">
+      <header>
+        <div class="flex items-center gap-3 text-sm font-sans text-text-faint flex-wrap">
+          <span>{company}</span>
+          <span>&middot;</span>
+          <span>{date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+          <span>&middot;</span>
+          <span>{reading_time} min read</span>
+          <span>&middot;</span>
+          <SeverityBadge severity={severity} />
+        </div>
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold text-text-primary mt-4 leading-tight">{title}</h1>
+        <div class="flex gap-2 mt-4 flex-wrap">
+          {categories.map((cat: string) => (
+            <a href={`/?category=${cat}`} class="inline-block px-2 py-0.5 rounded-full text-xs font-sans border border-surface-border text-text-muted hover:border-amber-accent hover:text-amber-accent transition-colors duration-150">
+              {cat.replace(/-/g, ' ')}
+            </a>
+          ))}
+        </div>
+      </header>
+      <div class="mt-8 font-serif text-text-body text-[1.1rem] leading-[1.8] postmortem-content">
+        <Content />
+      </div>
+      <footer class="mt-10 pt-6 border-t border-surface-border">
+        <a href={source_url} target="_blank" rel="noopener noreferrer"
+           class="text-amber-accent hover:text-amber-accent-dark font-sans text-sm">
+          Read the original postmortem &rarr;
+        </a>
+      </footer>
+    </article>
+  </div>
+</BaseLayout>

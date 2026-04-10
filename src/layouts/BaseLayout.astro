@@ -1,0 +1,62 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  canonicalUrl?: string;
+}
+
+const {
+  title,
+  description = 'Curated incident stories from the best engineering teams.',
+  ogType = 'website',
+  canonicalUrl,
+} = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || '';
+const canonical = canonicalUrl || `${siteUrl}${Astro.url.pathname}`;
+const ogImageUrl = `${siteUrl}/og-image.png`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content="Where's the Postmortem?" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="alternate" type="application/rss+xml" title="Where's the Postmortem?" href="/rss.xml" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-surface-base text-text-primary font-sans">
+    <SiteHeader />
+    <main id="main-content" role="main">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

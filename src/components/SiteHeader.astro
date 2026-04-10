@@ -1,0 +1,22 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-amber-accent focus:text-white focus:px-4 focus:py-2 focus:rounded">
+  Skip to content
+</a>
+<header role="banner" class="border-b border-surface-border">
+  <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+    <a href="/" class="font-serif text-lg font-bold text-text-primary hover:text-amber-accent transition-colors duration-150">
+      Where's the Postmortem?
+    </a>
+    <nav>
+      <a
+        href="/about"
+        class={`text-sm font-sans transition-colors duration-150 ${currentPath === '/about/' || currentPath === '/about' ? 'text-amber-accent' : 'text-text-muted hover:text-amber-accent'}`}
+      >
+        About
+      </a>
+    </nav>
+  </div>
+</header>

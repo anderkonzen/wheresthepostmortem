@@ -1,0 +1,168 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FeaturedCard from '../components/FeaturedCard.astro';
+import HighlightedCard from '../components/HighlightedCard.astro';
+import StandardCard from '../components/StandardCard.astro';
+import CategoryTag from '../components/CategoryTag.astro';
+
+const allPosts = await getCollection('postmortems', ({ data }) => !data.draft);
+const sorted = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const featured = sorted.find((p) => p.data.featured);
+const highlighted = sorted.filter((p) => p.data.highlighted).slice(0, 3);
+const standard = sorted.filter((p) => !p.data.featured && !p.data.highlighted);
+
+const categories = [
+  'database', 'dns', 'deploy', 'cascading-failure', 'configuration',
+  'security', 'networking', 'third-party', 'caching', 'load', 'financial',
+] as const;
+
+// Only show categories that have at least one post
+const usedCategories = categories.filter((cat) =>
+  allPosts.some((p) => p.data.categories.includes(cat))
+);
+---
+
+<BaseLayout title="Where's the Postmortem? | Curated Incident Stories">
+  <!-- Hero -->
+  <section class="max-w-5xl mx-auto px-4 pt-10 pb-6">
+    <h1 class="font-serif text-4xl sm:text-5xl font-bold text-text-primary">
+      Where's the <span class="text-amber-accent">Postmortem</span>?
+    </h1>
+    <p class="text-text-secondary mt-3 text-lg max-w-2xl">
+      Curated incident stories from the best engineering teams. Learn from failures you didn't have to live through.
+    </p>
+  </section>
+
+  <!-- Featured -->
+  {featured && (
+    <section class="max-w-5xl mx-auto px-4 pb-8">
+      <FeaturedCard post={featured} />
+    </section>
+  )}
+
+  <!-- Filters -->
+  <section class="max-w-5xl mx-auto px-4 pb-6">
+    <nav role="toolbar" aria-label="Filter by category" class="flex gap-2 overflow-x-auto pb-2 -mb-2">
+      <CategoryTag category="all" active={true} />
+      {usedCategories.map((cat) => (
+        <CategoryTag category={cat} />
+      ))}
+    </nav>
+  </section>
+
+  <!-- Empty filter message (hidden by default) -->
+  <div id="empty-filter-message" class="hidden max-w-5xl mx-auto px-4 py-12 text-center">
+    <p class="text-text-secondary">No postmortems in this category yet.</p>
+    <button data-category="all" class="text-amber-accent hover:text-amber-accent-dark mt-2 font-sans cursor-pointer">
+      Browse all
+    </button>
+  </div>
+
+  <!-- Highlighted -->
+  {highlighted.length > 0 && (
+    <section id="highlighted-grid" class="max-w-5xl mx-auto px-4 pb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {highlighted.map((post) => (
+          <HighlightedCard post={post} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Standard -->
+  {standard.length > 0 && (
+    <section id="standard-grid" class="max-w-5xl mx-auto px-4 pb-10">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {standard.map((post) => (
+          <StandardCard post={post} />
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<script>
+  function applyFilter(category: string) {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
+    const filterableCards = document.querySelectorAll<HTMLElement>('[data-categories]');
+    const emptyMessage = document.getElementById('empty-filter-message');
+    const highlightedGrid = document.getElementById('highlighted-grid');
+    const standardGrid = document.getElementById('standard-grid');
+
+    // Update button states
+    buttons.forEach((btn) => {
+      const isActive = btn.dataset.category === category;
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      if (isActive) {
+        btn.classList.add('bg-amber-accent-bg', 'border-amber-accent', 'text-amber-accent');
+        btn.classList.remove('border-surface-border-hover', 'text-text-muted');
+      } else {
+        btn.classList.remove('bg-amber-accent-bg', 'border-amber-accent', 'text-amber-accent');
+        btn.classList.add('border-surface-border-hover', 'text-text-muted');
+      }
+    });
+
+    // Filter cards
+    let visibleCount = 0;
+    filterableCards.forEach((card) => {
+      const categories = JSON.parse(card.dataset.categories || '[]');
+      const show = category === 'all' || categories.includes(category);
+      card.style.opacity = show ? '1' : '0';
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    // Show/hide empty message
+    if (emptyMessage) {
+      emptyMessage.classList.toggle('hidden', category === 'all' || visibleCount > 0);
+    }
+
+    // Hide grid sections if all their children are hidden
+    if (highlightedGrid) {
+      const visibleHighlighted = highlightedGrid.querySelectorAll('[data-categories]:not([style*="display: none"])');
+      highlightedGrid.style.display = visibleHighlighted.length === 0 && category !== 'all' ? 'none' : '';
+    }
+    if (standardGrid) {
+      const visibleStandard = standardGrid.querySelectorAll('[data-categories]:not([style*="display: none"])');
+      standardGrid.style.display = visibleStandard.length === 0 && category !== 'all' ? 'none' : '';
+    }
+  }
+
+  function bindFilterHandlers() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('nav[role="toolbar"] [data-category]');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const category = btn.dataset.category || 'all';
+        applyFilter(category);
+        // Update URL
+        const url = new URL(window.location.href);
+        if (category === 'all') {
+          url.searchParams.delete('category');
+        } else {
+          url.searchParams.set('category', category);
+        }
+        history.pushState({}, '', url.toString());
+      });
+    });
+  }
+
+  function readFilterFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('category') || 'all';
+  }
+
+  // Bind click handlers once
+  bindFilterHandlers();
+  // Apply initial filter from URL
+  applyFilter(readFilterFromURL());
+
+  // Browser back/forward: only re-apply filter state, don't re-bind handlers
+  window.addEventListener('popstate', () => applyFilter(readFilterFromURL()));
+  // Astro page transitions: re-bind + re-apply
+  document.addEventListener('astro:after-swap', () => {
+    bindFilterHandlers();
+    applyFilter(readFilterFromURL());
+  });
+</script>
