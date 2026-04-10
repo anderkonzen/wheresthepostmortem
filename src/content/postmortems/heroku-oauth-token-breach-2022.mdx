@@ -1,0 +1,33 @@
+---
+title: "When a Stolen Token in an Archived Repo Compromised an Entire Platform"
+company: "Heroku"
+date: 2022-04-07
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: false
+severity: "critical"
+categories: ["security", "third-party"]
+root_cause_type: "security-breach"
+one_line_summary: "An attacker found a machine account token in an archived private repo, used it to steal customer OAuth tokens, and accessed private repositories across dozens of organizations."
+source_url: "https://blog.heroku.com/april-2022-incident-review"
+reading_time: 11
+---
+
+## What Happened
+
+On April 7, 2022, an attacker accessed a Heroku database and downloaded stored customer GitHub integration OAuth tokens. The entry point was a machine account token that had been committed to an archived private GitHub repository. The attacker found that token through an unidentified third-party integration that had access to the repo, then used it to pivot into Heroku's internal database.
+
+Over the next two days, the attacker enumerated customer repositories on GitHub, selectively targeted organizations, listed their private repos, and cloned repositories belonging to dozens of victims. They also downloaded Heroku's own private source code. GitHub Security detected the unauthorized activity on April 12 and notified Salesforce (Heroku's parent company) the next day. The investigation revealed the attacker had also exfiltrated the database containing usernames and hashed passwords for all Heroku customer accounts, plus pipeline-level config vars for Review Apps and Heroku CI.
+
+## Impact
+
+All Heroku users were forced to reset their passwords on May 5. All existing GitHub integration OAuth tokens were revoked on April 15, breaking CI/CD pipelines for thousands of teams. The Heroku GitHub integration was disabled and remained unavailable for weeks. Dozens of organizations had private repositories accessed. npm (also owned by GitHub) was additionally impacted: the attacker used an AWS API key found in downloaded repos to access npm's infrastructure.
+
+## Root Cause
+
+A supply-chain attack enabled by a credential stored in source code. A machine account token existed in an archived private repo. A third-party integration with access to that repo was compromised (Heroku never identified which one). That token gave access to an internal database storing customer OAuth tokens, which gave access to customer private repos on GitHub. Each link in the chain amplified the blast radius.
+
+## Lessons
+
+The Heroku breach is a textbook supply-chain security failure. Every OAuth integration authorized on your repos is a potential attack vector. Secrets in repos, even archived and private ones, are accessible to every integration with repo access. Broad OAuth tokens that grant access to all repos create outsized blast radius compared to scoped tokens. After the incident, the industry conversation shifted toward GitHub's fine-grained personal access tokens and the GitHub Apps model, which limits permissions to specific repositories. The uncomfortable truth Heroku never resolved: they could not definitively identify the initial entry point, the third-party integration that was compromised first.

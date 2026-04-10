@@ -1,0 +1,33 @@
+---
+title: "43 Seconds of Network Partition, 24 Hours of Degraded Service"
+company: "GitHub"
+date: 2018-10-21
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: false
+severity: "critical"
+categories: ["database", "networking"]
+root_cause_type: "configuration-change"
+one_line_summary: "A 43-second network partition triggered an automated cross-region MySQL failover that created a split-brain, degrading GitHub for 24 hours."
+source_url: "https://github.blog/news-insights/company-news/oct21-post-incident-analysis/"
+reading_time: 10
+---
+
+## What Happened
+
+On October 21, 2018 at 22:52 UTC, routine maintenance to replace a failing 100G optical networking component caused a 43-second loss of connectivity between GitHub's US East Coast network hub and their primary US East Coast data center. During that brief partition, Orchestrator (GitHub's MySQL high-availability tool, built on Raft consensus) lost leadership on the East Coast. The West Coast and public cloud nodes formed a quorum and automatically promoted West Coast databases to primary.
+
+When connectivity restored 43 seconds later, the application tier began writing to the new West Coast primaries. But the East Coast databases contained writes that hadn't replicated west, and the West Coast now had 40 minutes of new writes. Neither side could safely replicate to the other. GitHub had a split-brain.
+
+## Impact
+
+GitHub was degraded for 24 hours and 11 minutes. Users saw out-of-date and inconsistent data. Approximately 5 million webhook events were queued, with 200,000 expiring and being permanently dropped. Around 80,000 GitHub Pages builds were paused. No user data was permanently lost, but a small window of writes required manual reconciliation.
+
+## Root Cause
+
+Orchestrator was configured to allow promotion of MySQL primaries across regional boundaries. The application tier couldn't tolerate cross-country write latency, but the failover tool didn't know that. A 43-second network partition was enough to trigger a topology change that took 24 hours to unwind. Recovery was slowed because restoring multi-terabyte databases from cloud blob storage took hours, and replication catch-up followed a power decay function rather than converging linearly, making every time estimate too optimistic.
+
+## Lessons
+
+GitHub's postmortem was notably honest about the gap between their disaster recovery assumptions and reality. They adjusted Orchestrator to prevent cross-region failover, accelerated migration to an active-active multi-datacenter design, and committed to systematic chaos engineering. The key insight: automated failover tools optimize for availability, but they can create data consistency problems that take orders of magnitude longer to fix than the original outage would have lasted. Sometimes the cure is worse than the disease.

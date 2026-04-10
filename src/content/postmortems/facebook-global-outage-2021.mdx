@@ -1,0 +1,35 @@
+---
+title: "The Day Facebook Disappeared from the Internet"
+company: "Meta"
+date: 2021-10-04
+last_updated: 2026-04-10
+draft: false
+featured: false
+highlighted: false
+severity: "critical"
+categories: ["networking", "configuration"]
+root_cause_type: "configuration-change"
+one_line_summary: "A backbone configuration change accidentally disconnected all Facebook data centers from each other and the internet for six hours."
+source_url: "https://engineering.fb.com/2021/10/05/networking-traffic/outage-details/"
+reading_time: 9
+---
+
+## What Happened
+
+On October 4, 2021, during routine maintenance, a command was issued to assess backbone network capacity. The command unintentionally severed all connections in Facebook's backbone network, cutting every data center off from each other and from the internet. An audit tool designed to catch exactly this kind of mistake had a bug, so it failed to stop the command.
+
+Facebook's DNS servers were programmed to withdraw their BGP route advertisements if they couldn't reach the data centers (a health check mechanism). With the backbone down, DNS declared itself unhealthy and pulled all BGP routes. Facebook, Instagram, WhatsApp, and Messenger became unreachable at the DNS level. Every lookup returned SERVFAIL.
+
+Engineers couldn't access data centers remotely because the network was down. Internal tools were also broken. Even badge access to buildings stopped working. Teams had to be physically dispatched to the Santa Clara data center, where the security systems designed to prevent unauthorized access slowed the process of manually resetting routers.
+
+## Impact
+
+All Facebook, Instagram, WhatsApp, Messenger, and Oculus services were down globally for approximately six hours, affecting 3.5 billion users. Facebook's stock dropped 5%, erasing over $6 billion from Zuckerberg's net worth. Estimated advertising revenue loss exceeded $60 million. Cloudflare's 1.1.1.1 DNS resolver saw 30x normal query volume from retry traffic. In developing countries where Facebook's Free Basics program provides internet access, people effectively lost their internet.
+
+## Root Cause
+
+A faulty backbone configuration change withdrew all BGP routes, which cascaded into DNS failure, which made everything unreachable. The safety audit tool that should have prevented the bad command had a bug. The blast radius was total because the backbone network was a single point of failure for all services, and DNS health checks were tightly coupled to backbone reachability.
+
+## Lessons
+
+Meta's postmortem acknowledged a painful tradeoff: the physical security that protects data centers from attackers also slows recovery from self-inflicted outages. After the incident, they committed to adding "total backbone failure" to their storm drill simulations (they had rehearsed major failures before but never this specific scenario). Internal tools were decoupled from production infrastructure. The meta-lesson: when your safety systems (audit tools, health checks, physical security) all assume the network is working, a network failure disables your ability to recover from a network failure.
